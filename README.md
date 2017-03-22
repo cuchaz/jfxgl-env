@@ -1,7 +1,9 @@
 
 # JFXGL Build Environment
 
-*script for creating the JFXGL build environment*
+*script for creating the [JFXGL][jfxgl] build environment*
+
+[jfxgl]: https://bitbucket.org/cuchaz/jfxgl
 
 
 ## How to use

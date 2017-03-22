@@ -1,0 +1,11 @@
+
+syntax glob
+
+build/output
+JFXGL
+JFXGL-demos
+openjdk-*
+openjfx
+.metadata
+.classpath
+

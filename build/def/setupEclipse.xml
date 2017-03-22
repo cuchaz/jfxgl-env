@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project" default="default">  
+
+	<property name="bin" location="../../bin"/>
+	<taskdef name="importProject" classname="cuchaz.jfxgl.ImportProjectTask" classpath="${bin}"/>
+	<taskdef name="setClasspathVar" classname="cuchaz.jfxgl.SetClasspathVarTask" classpath="${bin}"/>
+	<taskdef name="addJRE" classname="cuchaz.jfxgl.AddJRETask" classpath="${bin}"/>
+
+	<target name="default">
+
+		<!-- add classpath variables -->
+		<setClasspathVar name="JERKAR_HOME">build/boot</setClasspathVar>
+		<setClasspathVar name="JERKAR_REPO">~/.jerkar/cache/repo</setClasspathVar>
+
+		<!-- config our JDK -->
+		<addJRE name="openjdk-8u121-noFX">openjdk-8u121-noFX</addJRE>
+
+		<!-- import projects -->
+		<importProject>openjfx/buildSrc</importProject>
+		<importProject>openjfx/modules/base</importProject>
+		<importProject>openjfx/modules/graphics</importProject>
+		<importProject>openjfx/modules/controls</importProject>
+		<importProject>openjfx/modules/fxml</importProject>
+		<importProject>JFXGL</importProject>
+		<importProject>JFXGL-demos</importProject>
+		
+	</target>
+
+</project>

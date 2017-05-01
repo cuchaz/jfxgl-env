@@ -13,7 +13,7 @@
 		<setClasspathVar name="JERKAR_REPO">~/.jerkar/cache/repo</setClasspathVar>
 
 		<!-- config our JDK -->
-		<addJRE name="openjdk-8u121-noFX">openjdk-8u121-noFX</addJRE>
+		<addJRE name="openjdk-noFX">openjdk-noFX</addJRE>
 
 		<!-- import projects -->
 		<importProject>openjfx/buildSrc</importProject>

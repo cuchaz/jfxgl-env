@@ -41,7 +41,7 @@ public class Build extends JkJavaBuild {
 	private String pathEclipse = "eclipse";
 	
 	@JkDoc("path to OpenJDK folder")
-	private File pathJDK = new File("OpenJDK-8u131");
+	private File pathJDK = new File("openjdk");
 	
 	private static final String OpenJFXCommit = "149fdbc41c8f5ab43c0414b970d9133e1f4e9cbd";
 	
@@ -209,6 +209,12 @@ public class Build extends JkJavaBuild {
 		log("And we're all done!");
 		log("");
 		log("");
+	}
+
+	public void compileJfxrt() {
+		File cwd = new File("").getAbsoluteFile();
+		File openjfxDir = new File(cwd, "openjfx");
+		run(openjfxDir, pathGradle);
 	}
 	
 	private void copyDirAndAttributes(File src, File dst) {

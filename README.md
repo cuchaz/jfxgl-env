@@ -47,12 +47,14 @@ for your favorite IDE.
 [openjfx-prereq]: https://wiki.openjdk.java.net/display/OpenJFX/Building+OpenJFX#BuildingOpenJFX-PlatformPrerequisites
 
 **WARNING:** If you intend to build on Windows, OpenJFK is *very* difficult to build on that platform.
-There are a ton of pre-requisites to install and you need to hack the Windows gradle build files manually
+There are a ton of pre-requisites to install (like cygwin) and you need to hack the Windows gradle build files manually
 so they can find the compilers, libraries, headers, etc. It's generally a huge pain in the ass and I can't
 recommend even people I don't like to do it. I've made some attempt to get the JFXGL setup script to work on Windows,
 but it can't automate the gradle build script hacks, so the script will usually fail at the OpenJFX Gradle step.
 
 However, if you're determined to build on Windows, it is possible. Just prepare for lots of headaches.
+On the other hand, If you do managed to get the setup script working in Windows in a portable way,
+contributions are very welcome. =)
 
 Really though, I recommend building in Linux. The compiled bytecode and jar files are cross-platform,
 and this setup script works very well in Linux.

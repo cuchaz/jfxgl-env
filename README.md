@@ -48,12 +48,12 @@ for your favorite IDE.
 
 **WARNING:** If you intend to build on Windows, OpenJFK is *very* difficult to build on that platform.
 There are a ton of pre-requisites to install (like cygwin) and you need to hack the Windows gradle build files manually
-so they can find the compilers, libraries, headers, etc. It's generally a huge pain in the ass and I can't
-recommend even people I don't like to do it. I've made some attempt to get the JFXGL setup script to work on Windows,
+so they can find the compilers, libraries, headers, etc. It's generally a huge pain in the ass and I wouldn't
+recommend it even to my enemies. I've made some attempt to get the JFXGL setup script to work on Windows,
 but it can't automate the gradle build script hacks, so the script will usually fail at the OpenJFX Gradle step.
 
 However, if you're determined to build on Windows, it is possible. Just prepare for lots of headaches.
-On the other hand, If you do managed to get the setup script working in Windows in a portable way,
+On the other hand, If you do manage to get the setup script working in Windows in a portable way,
 contributions are very welcome. =)
 
 Really though, I recommend building in Linux. The compiled bytecode and jar files are cross-platform,
@@ -70,7 +70,8 @@ $ ./jerkar setup
 
 This script does a ton of work and downloads a bunch of huge files, so it takes a while to finish.
 It takes maybe 15 minutes or so depending on your internet connection speed and CPU speed.
-I'd suggest starting it and then amusing yourself with something else while you wait for it to finish.
+I'd suggest starting it and then [amusing yourself with something else](https://www.reddit.com/r/gamedev/)
+while you wait for it to finish.
 
 To see what to do next, choose your own adventure!
 
@@ -86,6 +87,10 @@ Eclipse will go mad trying to compile everything. When it's done, you should end
 from the OpenJFX modules. I think there's a couple missing dependencies (like Eclipse SWT), but we shouldn't need
 those components in a development environment anyway, so you should be able to safely ignore those compile errors.
 
+Unless you actually need those components, of course. Then ... uhh... idunno... [Report an issue?][report]
+
+[report]: https://bitbucket.org/cuchaz/jfxgl-env/issues
+
 If the `JFXGL` project has compile errors, probably Eclipse is just dumb and you should refresh all the projects
 until the errors go away. Eventually, the `JFXGL` and `JFXGL-demos` projects should have no compile errors.
 
@@ -93,7 +98,7 @@ until the errors go away. Eventually, the `JFXGL` and `JFXGL-demos` projects sho
 ### Try running the demos
 
 Find the `cuchaz.jfxgl.HelloWorld` class and run it. (right click, "Run As" > "Java Application")
-Eclipse will complain about compile errors in the workspace. It's not wrong. Just ignore the errors.
+Eclipse might complain about compile errors in the workspace. It's not wrong. Just ignore the errors.
 If the app works, you'll be greeted with a small window containing a white background and centered black
 text that reads simply "Hello World".
 
@@ -132,4 +137,4 @@ pathJDK=/path/to/your/JDK
 
 ### Still doesn't work?
 
-[Report an issue.](https://bitbucket.org/cuchaz/jfxgl-env/issues)
+[Report an issue.][report]

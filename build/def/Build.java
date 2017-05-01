@@ -17,30 +17,73 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jerkar.api.depmanagement.JkDependencies;
 import org.jerkar.api.file.JkFileTreeSet;
 import org.jerkar.api.system.JkProcess;
 import org.jerkar.api.utils.JkUtilsFile;
+import org.jerkar.api.utils.JkUtilsSystem;
 import org.jerkar.tool.builtins.javabuild.JkJavaBuild;
+import org.jerkar.tool.JkDoc;
+import org.jerkar.tool.JkOptions;
 
 public class Build extends JkJavaBuild {
+
+	@JkDoc("path to Mercurial executable")
+	private String pathHg = "hg";
 	
-	// by default, we'll omit absolute paths and let the operating system find the paths for these tools
-	// if for some reason, the OS doesn't get it right, feel free to edit this script and add absolute paths
-	private static final String HG = "hg";
-	private static final String GRADLE = "gradle";
-	private static final String ECLIPSE = "eclipse";
+	@JkDoc("path to Gradle executable")
+	private String pathGradle = "gradle";
 	
-	// by default, we'll assume the JDK is at this relative path
-	// if it's not, feel free to edit this script and add the absolute path here
-	private static final File JDKDir = new File("openjdk-8u121");
+	@JkDoc("path to Eclipse executable")
+	private String pathEclipse = "eclipse";
+	
+	@JkDoc("path to OpenJDK folder")
+	private File pathJDK = new File("OpenJDK-8u131");
 	
 	private static final String OpenJFXCommit = "149fdbc41c8f5ab43c0414b970d9133e1f4e9cbd";
 	
+	private void checkExecutables(String ... paths) {
+		Set<String> missingPaths = new HashSet<>();
+		for (String path : paths) {
+			if (!isExecutable(path)) {
+				missingPaths.add(path);
+			}
+		}
+		if (!missingPaths.isEmpty()) {
+			throw new Error("can't find executables: " + missingPaths
+				+ "\nSee README.md for info on how to configure executable paths."
+			);
+		}
+	}
+	
+	private boolean isExecutable(String path) {
+		
+		// check for absolute path first
+		File file = new File(path);
+		if (file.exists() && file.canExecute()) {
+			return true;
+		}
+		
+		// then ask the OS to resolve the executable
+		if (JkUtilsSystem.IS_WINDOWS) {
+			int result = JkProcess.of("where", "/q", path)
+				.failOnError(false)
+				.runSync();
+			return result == 0;
+		} else {
+			int result = JkProcess.of("which", path)
+				.failOnError(false)
+				.runSync();
+			return result == 0;
+		}
+	}
+	
 	public void clean() {
 		File cwd = new File("").getAbsoluteFile();
-		JkUtilsFile.tryDeleteDir(new File(cwd, "openjdk-8u121-noFX"));
+		JkUtilsFile.tryDeleteDir(new File(cwd, "openjdk-noFX"));
 		JkUtilsFile.tryDeleteDir(new File(cwd, "openjfx"));
 		JkUtilsFile.tryDeleteDir(new File(cwd, "JFXGL"));
 		JkUtilsFile.tryDeleteDir(new File(cwd, "JFXGL-demos"));
@@ -49,20 +92,24 @@ public class Build extends JkJavaBuild {
 	
 	public void setup() {
 		
+		header("Checking options...");
+		checkExecutables(pathHg, pathGradle, pathEclipse);
+		log("Options look good");
+		
 		header("Setting up JFXGL development environment...");
-			
+		
 		File cwd = new File("").getAbsoluteFile();
 		
 		// is the JDK already downloaded?
-		if (!JDKDir.exists()) {
-			error("no JDK found at " + JDKDir);
+		if (!pathJDK.exists()) {
+			error("no JDK found at " + pathJDK);
 		}
 		
-		// make the noFX copy if needed
-		File jdkNoFXDir = new File(cwd, "openjdk-8u121-noFX");
+		// make the noFX copy if needed			
+		File jdkNoFXDir = new File(cwd, "openjdk-noFX");
 		if (!jdkNoFXDir.exists()) {
 			log("Copying JDK...");
-			copyDirAndAttributes(JDKDir, jdkNoFXDir);
+			copyDirAndAttributes(pathJDK, jdkNoFXDir);
 			log("JDK copied");
 		}
 		
@@ -81,22 +128,35 @@ public class Build extends JkJavaBuild {
 			log("Downloading OpenJFX... (It's ~690 MiB, so this can take a while)");
 			hg(openjfxDir, "clone", "-r", OpenJFXCommit, "http://hg.openjdk.java.net/openjfx/8u-dev/rt", ".");
 			log("Downloaded OpenJFX");
+		}
 			
-			// build OpenJFX
-			log("Configuring OpenJFX build...");
-			File gradlePropsTemplate = new File(openjfxDir, "gradle.properties.template");
-			File gradleProps = new File(openjfxDir, "gradle.properties");
-			JkUtilsFile.copyFile(gradlePropsTemplate, gradleProps);
-			JkUtilsFile.writeString(gradleProps, "\nJDK_HOME = " + jdkNoFXDir.getAbsolutePath(), true);
-			log("Building OpenJFX...");
-			run(openjfxDir, GRADLE);
-			
-			// copy the compiled classes to (what will be) the eclipse build dir
-			for (String module : Arrays.asList("base", "controls", "fxml", "graphics")) {
-				File src = new File(openjfxDir, "modules/" + module + "/build/classes/main");
-				File dst = new File(openjfxDir, "modules/" + module + "/bin");
-				dst.mkdirs();
-				JkUtilsFile.copyDirContent(src, dst, true);
+		// build OpenJFX
+		File gradleProps = new File(openjfxDir, "gradle.properties");
+		if (!gradleProps.exists()) {
+			try {
+				
+				log("Configuring OpenJFX build...");
+				File gradlePropsTemplate = new File(openjfxDir, "gradle.properties.template");
+				JkUtilsFile.copyFile(gradlePropsTemplate, gradleProps);
+				JkUtilsFile.writeString(gradleProps, "\nJDK_HOME = " + jdkNoFXDir.getAbsolutePath(), true);
+				
+				log("Building OpenJFX...");
+				run(openjfxDir, pathGradle);
+				
+				// copy the compiled classes to (what will be) the eclipse build dir
+				for (String module : Arrays.asList("base", "controls", "fxml", "graphics")) {
+					File src = new File(openjfxDir, "modules/" + module + "/build/classes/main");
+					File dst = new File(openjfxDir, "modules/" + module + "/bin");
+					dst.mkdirs();
+					JkUtilsFile.copyDirContent(src, dst, true);
+				}
+				
+			} catch (Throwable t) {
+				
+				// remove the gradle props file so we re-do this step next time
+				gradleProps.delete();
+				
+				throw t;
 			}
 		}
 		
@@ -111,7 +171,7 @@ public class Build extends JkJavaBuild {
 			
 			// patch OpenJFX
 			hg(openjfxDir, "revert", "--all");
-			hg(openjfxDir, "patch", "--no-commit", "../JFXGL/openjfx.8u121.patch");
+			hg(openjfxDir, "patch", "--no-commit", "../JFXGL/openjfx.patch");
 		}
 		
 		// clone JFXGL-demos
@@ -135,7 +195,7 @@ public class Build extends JkJavaBuild {
 			classpathText = classpathText.replaceAll("\\.\\./build/libs", libsDir.getAbsolutePath());
 			JkUtilsFile.writeString(classpathFile, classpathText, false);
 			
-			run(cwd, ECLIPSE,
+			run(cwd, pathEclipse,
 				"-nosplash",
 				"-data", cwd.getAbsolutePath(),
 				"-application", "org.eclipse.ant.core.antRunner",
@@ -179,13 +239,19 @@ public class Build extends JkJavaBuild {
 		}
 	}
 
-	private static void hg(File cwd, String ... args) {
-		run(cwd, HG, concat("--noninteractive", args));
+	private void hg(File cwd, String ... args) {
+		run(cwd, pathHg, concat("--noninteractive", args));
 	}
 	
-	private static void jerkar(File cwd, String task) {
+	private void jerkar(File cwd, String task) {
 		// NOTE: we're using jerkar embedded mode, so always use the jerkar in the cwd
-		run(cwd, "./jerkar", task);
+		String cmd;
+		if (JkUtilsSystem.IS_WINDOWS) {
+			cmd = "./jerkar.bat";
+		} else {
+			cmd = "./jerkar";
+		}
+		run(cwd, cmd, task);
 	}
 	
 	private static String[] concat(String val, String[] vals) {

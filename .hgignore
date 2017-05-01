@@ -2,6 +2,7 @@
 syntax glob
 
 build/output
+build/boot/options.properties
 JFXGL
 JFXGL-demos
 openjdk-*

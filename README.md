@@ -22,13 +22,13 @@ Of course, you'll need to make sure [Mercurial][hg] is installed.
 
 ### 2. Download OpenJDK
 
-You'll need an [OpenJDK 8u121][8u121] installation. The precompiled binaries from Oracle are basically
-the same thing. Download the version for your platform, and make sure it's installed at
-`jfxgl-env/openjdk-8u121`. If for some reason your JDK installation
-is in a different location, see the [Troubleshooting](#markdown-header-troubleshooting) section for
+You'll need an [OpenJDK][openjdk] installation. The precompiled binaries from Oracle are basically
+the same thing. Download the version for your platform, and install it wherever you like.
+If you install it to `jfxgl-env/openjdk`, this script will automatically know where to find it.
+If you install it somewhere else, see the [Troubleshooting](#markdown-header-troubleshooting) section for
 instructions on how to tell the setup script where it is.
 
-[8u121]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+[openjdk]: http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 
 
 ### 3. Install prerequisites
@@ -37,12 +37,25 @@ This setup script requires a few tools to work. Make sure they're installed on y
 
  * [Gradle][gradle] (used to build OpenJFX)
  * [Eclipse][eclipse] (the IDE we'll use)
+ * [OpenJFX prerequisites][openjfx-prereq]
 
 Other IDEs aren't supported yet, but they could be. Feel free to contribute instructions/scripts
 for your favorite IDE.
 
 [gradle]: https://gradle.org/
 [eclipse]: http://www.eclipse.org/
+[openjfx-prereq]: https://wiki.openjdk.java.net/display/OpenJFX/Building+OpenJFX#BuildingOpenJFX-PlatformPrerequisites
+
+**WARNING:** If you intend to build on Windows, OpenJFK is *very* difficult to build on that platform.
+There are a ton of pre-requisites to install and you need to hack the Windows gradle build files manually
+so they can find the compilers, libraries, headers, etc. It's generally a huge pain in the ass and I can't
+recommend even people I don't like to do it. I've made some attempt to get the JFXGL setup script to work on Windows,
+but it can't automate the gradle build script hacks, so the script will usually fail at the OpenJFX Gradle step.
+
+However, if you're determined to build on Windows, it is possible. Just prepare for lots of headaches.
+
+Really though, I recommend building in Linux. The compiled bytecode and jar files are cross-platform,
+and this setup script works very well in Linux.
 
 
 ### 4. Run the script
@@ -67,12 +80,9 @@ To see what to do next, choose your own adventure!
 ## It worked
 
 When the setup script is done, you can start Eclipse at the workspace `jfxgl-env` and everything should Just Work.
-Eclipse will go mad trying to compile everything. When it's done, you should end up with a bunch of compile errors.
-Since we broke the crap out of the OpenJFX project with our hacky patch, OpenJFX won't fully compile anymore.
-
-But that's ok.
-
-The stuff we actually need should compile just fine.
+Eclipse will go mad trying to compile everything. When it's done, you should end up with only a few compile errors
+from the OpenJFX modules. I think there's a couple missing dependencies (like Eclipse SWT), but we shouldn't need
+those components in a development environment anyway, so you should be able to safely ignore those compile errors.
 
 If the `JFXGL` project has compile errors, probably Eclipse is just dumb and you should refresh all the projects
 until the errors go away. Eventually, the `JFXGL` and `JFXGL-demos` projects should have no compile errors.
@@ -93,43 +103,29 @@ You can try the `HelloWorldPane`, `demo.overlay.Main`, and `demo.pane.Main` clas
 ## Troubleshooting
 
 
-### Finding the JDK
+### Finding build tools
 
-If the setup script doesn't work, the first thing to check is if the script can find the JDK installation.
+The setup script checks that it can find the build tools it needs.
+If the build tools can't be found, you'll see an error like "can't find executable tool.exe".
 
-Open `build/def/Build.java` in your favorite text editor (mine's [gVim][gvim]) and look for these lines near the top:
-```java
-// by default, we'll assume the JDK is at this relative path
-// if it's not, feel free to edit this script and add the absolute path here
-private static final File JDKDir = new File("openjdk-8u121");
-
+If this happens, make the text file ``jfxlg-env/build/boot/options.properties`` and add paths for the
+missing executable files using your favorite text editor (mine's [gVim][gvim]):
 ```
-If that `File` doesn't point to your JDK installation, then edit the script until it does. Then re-run the script.
+pathHg=/path/to/your/hg
+pathGradle=/path/to/your/gradle
+pathEclipse=/path/to/your/eclipse
+```
 
 [gvim]: http://www.vim.org/
 
 
-### Finding build tools
+### Finding the JDK
 
-The next thing to check is if the script can find the build tools it needs.
-The setup scripts assumes a Sane and Normal Shell Environment that can find executables simply by naming them.
-This works fantastically well in Linux, but I haven't tested it in Mac or Windows, so who knows what will happen
-there.
-
-If you see errors that look like the script can't find an executable file, you can fix that by making tiny edits
-to the top of the script file.
-
-Open `build/def/Build.java` in your favorite text editor and look for these lines near the top:
-```java
-// by default, we'll omit absolute paths and let the operating system find the paths for these tools
-// if for some reason, the OS doesn't get it right, feel free to edit this script and add absolute paths
-private static final String HG = "hg";
-private static final String GRADLE = "gradle";
-private static final String ECLIPSE = "eclipse";
-
+If the setup script complains about "no JDK found at ...", then you'll need to specify the JDK
+path. Make the text file ``jfxgl-env/build/boot/options.properties`` and add the path for your JDK:
 ```
-Simply edit the string constants to the full path to those executables and re-run the script. Of course, if those
-tools aren't installed, you'll need to install them.
+pathJDK=/path/to/your/JDK
+```
 
 
 ### Still doesn't work?

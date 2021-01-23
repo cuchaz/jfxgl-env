@@ -3,22 +3,29 @@
 
 *script for creating the [JFXGL][jfxgl] build environment*
 
-[jfxgl]: https://bitbucket.org/cuchaz/jfxgl
+[jfxgl]: https://github.com/cuchaz/jfxgl
 
 
 ## How to use
+
+
+### 0. WARNING: This tool no longer works!
+
+But fixing it probably isn't that hard. =P
+
+JFXGL was migrated from a Mercurial repo to a Git repo, but this tool still references
+the old Mercurial repos. To get it working again, someone needs to change the code
+to point to the new GitHub repos, and change the invocations of `hg` to `git` where needed.
+
+Good luck!
 
 
 ### 1. Download the script
 ```
 $ mkdir jfxgl-env
 $ cd jfxgl-env
-$ hg clone https://cuchaz@bitbucket.org/cuchaz/jfxgl-env .
+$ git clone https://github.com/cuchaz/jfxgl-env.git .
 ```
-Of course, you'll need to make sure [Mercurial][hg] is installed.
-
-[hg]: https://www.mercurial-scm.org/
-
 
 ### 2. Download OpenJDK
 
@@ -87,10 +94,6 @@ Eclipse will go mad trying to compile everything. When it's done, you should end
 from the OpenJFX modules. I think there's a couple missing dependencies (like Eclipse SWT), but we shouldn't need
 those components in a development environment anyway, so you should be able to safely ignore those compile errors.
 
-Unless you actually need those components, of course. Then ... uhh... idunno... [Report an issue?][report]
-
-[report]: https://bitbucket.org/cuchaz/jfxgl-env/issues
-
 If the `JFXGL` project has compile errors, probably Eclipse is just dumb and you should refresh all the projects
 until the errors go away. Eventually, the `JFXGL` and `JFXGL-demos` projects should have no compile errors.
 
@@ -133,8 +136,3 @@ path. Make the text file ``jfxgl-env/build/boot/options.properties`` and add the
 ```
 pathJDK=/path/to/your/JDK
 ```
-
-
-### Still doesn't work?
-
-[Report an issue.][report]

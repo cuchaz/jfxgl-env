@@ -82,9 +82,9 @@ while you wait for it to finish.
 
 To see what to do next, choose your own adventure!
 
-[Great, it worked!](#markdown-header-it-worked) :D
+[Great, it worked!](#it-worked) :D
 
-[Crap, it didn't work.](#markdown-header-troubleshooting) D:
+[Crap, it didn't work.](#troubleshooting) D:
 
 
 ## It worked
